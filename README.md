@@ -1,4 +1,4 @@
-﻿# seiichinagi-create
+﻿﻿# seiichinagi-create
 
 ---
 
@@ -84,3 +84,90 @@ investment-ai-analystはSBI取引履歴のETLから始まりAI多人格議論エ
 | 構想 | vst-ideas | 未来の構想アーカイブ（評価エンジン・グラニュラーAI等） |
 | 医療 | PTPCounter | 電子天秤×持参薬錠数カウンター |
 | 検査 | CCD / CamView | タブレット検査用カメラ・OCRビューア |
+
+---
+
+## プロジェクト全体エコシステム
+
+```mermaid
+graph LR
+
+    %% ── GPU中核 ──────────────────────
+    GPU["🖥️ RTX 5070 Ti 16GB\n全AIの動力源"]
+
+    %% ── オーケストレーター ────────────
+    CORE["3face-core\n🎛️ ダッシュボード\nGPU監視・タスク調停\n（将来の一括管理）"]
+
+    %% ── 音楽生成クラスタ ──────────────
+    subgraph MUSIC_CLUSTER ["🎵 音楽生成システム"]
+        MS["3face-music-studio\nBBS→Ollama→AceStep"]
+        LF["3face-lora-factory\nLoRAバッチ学習"]
+        SS["3face-suno-studio\nSunoパイプライン"]
+        SAM["vst-3face-sampler\nJUCE 8 SFZサンプラー"]
+    end
+
+    %% ── VST開発クラスタ ───────────────
+    subgraph VST_CLUSTER ["🎛️ VST / シンセ開発"]
+        SN["vst-retrophie-sn\nレトロシンセ VST3\n→ 将来ハードシンセ化"]
+        OD3["回路シミュVST群\nOD-3/BigMuff/Chorus\nModuMogu/OCCIPUT"]
+        IDEAS["vst-ideas\n構想アーカイブ\nPerformance Variator\nGranular Remaster他"]
+    end
+
+    %% ── 評価インフラ ──────────────────
+    subgraph EVAL_CLUSTER ["📊 評価インフラ"]
+        ITUNES["iTunes ETL\nEndurance Index\n24,405曲解析済み"]
+        YT["YouTube\nサバイバー評価\n（設計済み）"]
+    end
+
+    %% ── 投資解析システム ──────────────
+    subgraph INV_CLUSTER ["💹 investment-ai-analyst"]
+        FX_ETL["SBI FX ETL\n3年・170件解析済み"]
+        ECO["経済指標エンジン\nFRED API連携"]
+        DISC["AI議論ループ\n5エージェント\nSearXNG検索付き"]
+        REPORT["自動レポート\n毎朝07:00"]
+    end
+
+    %% ── 医療・産業ツール ──────────────
+    subgraph TOOLS_CLUSTER ["🏥 現場ツール"]
+        PTP["PTPCounter\n持参薬錠数カウンター"]
+        CCD["CCD/CamView\n検査カメラ・OCR"]
+    end
+
+    %% ── インフラ ──────────────────────
+    subgraph INFRA ["⚙️ ローカルインフラ"]
+        OLLAMA["Ollama\nqwen3.6/2.5/gemma4"]
+        SEARXNG["SearXNG\nBing検索"]
+        FRED["FRED API"]
+    end
+
+    %% ── 接続 ─────────────────────────
+    GPU --> CORE
+    CORE -->|"GPU調停"| MS & LF & DISC
+
+    MS & LF --> GPU
+    SS -.->|"外部API"| MS
+
+    OLLAMA --> MS & DISC
+    SEARXNG --> DISC
+    FRED --> ECO
+
+    FX_ETL --> ECO --> DISC --> REPORT
+    ITUNES -.->|"将来統合"| DISC
+    YT -.->|"将来統合"| DISC
+
+    IDEAS -->|"構想→実装"| SN & OD3
+    SN -.->|"将来"| MUSIC_CLUSTER
+    EVAL_CLUSTER -.->|"音楽品質評価軸"| IDEAS
+
+    classDef done fill:#2d5a27,color:#fff,stroke:#4a9640
+    classDef inprogress fill:#1a3a6b,color:#fff,stroke:#2563eb
+    classDef future fill:#3d2b00,color:#fff,stroke:#b45309
+    classDef infra fill:#2d2d2d,color:#fff,stroke:#666
+
+    class MS,LF,SS,SAM,OD3,ITUNES,FX_ETL done
+    class SN,ECO,DISC,REPORT,CORE inprogress
+    class YT,IDEAS future
+    class OLLAMA,SEARXNG,FRED,GPU,PTP,CCD infra
+```
+
+**凡例:** 🟢 稼働済み　🔵 開発中　🟡 設計済み・未実装
