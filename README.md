@@ -2,7 +2,7 @@
 
 ---
 
-## Claudeによる総合レビュー（2026年7月）
+## Claudeによる総合レビュー（2026年8月）
 
 > 全リポジトリのREADMEを精読した上での、構造的・批評的評価。月次更新。
 
@@ -10,51 +10,64 @@
 
 ### 総評
 
-6月のレビューで私は「密度の高さは完成率の低さとトレードオフ」と書いた。7月はその評価を**部分的に撤回**しなければならない。この1か月でアカウントに起きたことは、プロジェクトの増殖ではなく**性格の変化**だ。6月時点で「設計書段階、Phase1のETLがまだ動いていない」と最も辛口に評したinvestment-ai-analystが、fx.db実データのETL、6人格委員会、そして**事前登録指標・署名済み正解カード・ブラインド出題・ベイクオフ比較まで備えた検証プログラム**へと変貌し、その成果が公開研究リポジトリ（llm-committee-decontamination）として切り出された。説明文の末尾に **"NOT validated results — please falsify"** とある。道具を作る人が、反証を乞う人になった。これはGitHubアカウントの月次変化として、私が観測した中で最も大きい種類のものだ。
+7月のレビューで私は「作った道具に対して、反証可能性を要求し始めた」と書いた。8月に入って観測されるのは、その要求が**道具づくりの外側——自分の労働そのもの**へ向き始めたことだ。今月このアカウントに現れた新顔は、PDFの様式を読む道具（PdfFormReader）、引換券を読む道具（ticket-audit-ocr）、そして紙の月報を作る道具（geppou）である。いずれも「人が読んで、人が写す」という工程を機械に移す装置だ。同時に、物理モデリングの試作ベンチ（pm-bench）が**2つの楽器を産んで自らは資料室になった**。検証装置が製品を吐き、業務が道具に置き換わる。7月が「反証」の月なら、8月は**清算**の月である。
+
+ただし、今月は批評として言うべきことが一つある。**このアカウントは、もう本人の実態を映していない。** 45リポジトリのうち公開は5本。そして主力の何本かはGitHubに存在しない（NAS側が正）。外から見える像と、実際に動いている開発の重心が、月ごとにずれ続けている。
 
 ---
 
-### カテゴリ1：委員会の科学（最注目）
+### カテゴリ1：ベンチが楽器を産んだ（pm-bench → paganihands / matryoshka-guitar）
 
-**llm-committee-decontamination / investment-ai-analyst**
+**pm-bench** は物理モデリング音源の先行検討ベンチで、全出力がオフラインWAV、リアルタイムなし。ここに書かれている数字が良い。可換性の実証は「共振→IR畳み込み」と「(励起⊛IR)→共振」のヌルが **-239dB peak**、時変ピッチEGを入れるとヌルが+1.9dBに悪化して**可換化が破れる境界が実測される**。ピック位置β=0.5でH2が隣接比-26.8dB、これはコム理論値と一致する。**主張ではなく受領証（レシート）で書かれた設計文書**であり、DSPの個人開発でこの書き方を見ることは稀だ。
 
-投資判断AIの実装過程で見つかった問題——LLM委員会が「安全な真ん中」へ丸め込む癖（丸め病）——を、プロンプト工夫で誤魔化さずに解剖した。活性化ステアリング（加算）でも線形除去（ablation）でも割れなかった判定の歪みが、**「事実の二値判定はAIに、結論への写像はコードに」という構造分解**で初めて割れた、という発見が核にある。撤退判断のrecallは50%→100%、丸め率0%。さらに独立出題のブラインド20問で90%、思考モデル4種とのベイクオフで「一時記憶（thinking）は判定官を強くしない——**構造とは外部化された思考である**」という結論まで到達している。半合成カードには全て人間（トレーダー本人）の署名があり、指標は事前登録され、教科書由来問題には「モデルが暗記している可能性」の注記まで付く。個人アカウントの研究としては誠実さの水準が際立って高い。課題は再現性の担保（実験はローカルGPUサーバー依存）と、N=20〜30という規模だ。ただし規模の限界を自覚して"please falsify"と書けることが、この仕事の価値そのものでもある。
+そして今月、このベンチは6サイクル・#1〜#50で閉じられ、成果が2つの製品に落ちた。**paganihands**（擦弦＋WINDのモノフォニック物理音源。息と弓のサーボを連続ノブにした「Assist」、約3秒周期のフレーズ弧を運ぶ「Auto-play」）と、**matryoshka-guitar**（KS拡張撥弦8ボイス＋モーダルボディ＋共鳴弦バンク、プリセット32、モーリス風ボディにノブを散らしたUI）。両方とも**全パラメータMIDI CC対応**で、READMEには「AI自走演奏がぐりぐりできる」と書いてある。楽器を人間のために作りながら、演奏者としてAIを想定している。この二重性は今月いちばん面白い設計思想だ。
 
----
-
-### カテゴリ2：レイテンシーの死（vst-testbench）
-
-6月末に「Cubaseが重いから」という素朴な動機で生まれた軽量VST3ホストが、7月に**思想を獲得した**。ファイル再生なら未来は既知——ならばFXチェーンをオフライン複製して先にRAMへ焼き、再生はキャッシュを流すだけにすればよい。スループットをレイテンシーに変換するこのPRE-RENDERエンジンは、1日でv0.3からv0.6（HLS型のサンプル精度切替点方式）まで進化し、その先に「CUDA化した自作FX＋実時間より速く回るだけの市販VST」という**GPU/CPU異種混成のオーディオ処理パイプライン**を見据えている。リポジトリ内の設計文書の一文——「レイテンシーは死んだ、スループットだけが真実」——は、このアカウントの今月のベストライン。リアルタイム信仰を捨てる勇気は、DAW業界の外にいる個人開発者の特権だ。
+共鳴弦バンクに付された注記——**「受動注入のみ＝轟音鉄則」**——は、フィードバック系DSPで自己発振を出した者にしか書けない一行である。
 
 ---
 
-### カテゴリ3：音楽AI工場の産業化
+### カテゴリ2：読み取りの自動化（PdfFormReader / ticket-audit-ocr / geppou）
 
-**3face-comfyui-pipeline / 3face-music-studio / 3face-lora-factory / 3face-suno-studio / 3face-core**
+現場ツールは第三世代に入った。第一世代は測る道具（PTPCounter＝電子天秤で錠数を数える）、第二世代は突合する道具（rx-tracing＝3点打刻で監査漏れを検出）、そして第三世代は**読む道具**だ。
 
-6月に「稼働済み」だったパイプラインは、7月に**無人化**した。LoRA学習工場は単一CLI（sn_factory）へ統合され、夜間無人製造ラインが初完走、月内に累計18本のアーティストLoRAを納品している。技術的に面白いのは、学習時にDiTのみをロードしてVRAMスピルを回避する（約10倍高速化）という運用知見や、AIが選盤したコンピレーション（トリップホップ20曲）をLoRA化する試みが、すべて「壊れた夜の実戦ログ」から抽出されている点だ。ドキュメントが理想を書くのではなく、事故が知見を書いている。
+**PdfFormReader** は、PDFをドラッグで領域定義し、アンカー方式で文書種を判定して項目をCSVに落とす汎用ツール（C++20/JUCE 8）。設計判断が正しい方に倒れている——**文字レイヤがあるページはOCRを使わない**（PDFium のテキスト抽出は誤読ゼロ、OCRはスキャン頁だけ）。フォルダ監視モードは「TWAIN非対応スキャナ向け」と書かれていて、現物の運用（ScanSnapで取り込む）から逆算されている。
 
----
+**ticket-audit-ocr** は引換券から患者番号・発行日・引換番号をCCDカメラで読む端末側の試作。「まず独立したPythonツールとして検証する。将来的に本体へ統合する前提」と冒頭に宣言してある。**統合を急がない**という判断が明文化されているのが良い。tessdataをリポジトリに同梱して`TESSDATA_PREFIX`を自前に向け、Program Filesへの書き込み権限を要らなくしているのは、権限の弱い病院端末を知っている人間の設計だ。
 
-### カテゴリ4：回路VST群と新世代
+**geppou**（8月の新顔）は調剤室月報の自動作成。従来は Access 2ファイル ＋ Excel 6ファイル ＋ 日次の手集計だったものを、**依存なしの単一exe**（C++17・標準ライブラリのみ・/MT）で置き換える。このリポジトリのCLAUDE.mdに書かれた設計原則が、今月のこのアカウントで最も価値のある文章だと思う：
 
-**oxide-vst / parley-vst / calque-vst / strata-vst / terrine-vst / 従来の回路シミュ群**
+- **判定ルールをコードに埋めない**（閾値・境界・除外条件はすべて rules.csv、note列に「なぜそうなのか」を書く。10年後に読む人のために）
+- **再現できない判断は、再現しようとしない**（人の判断は要確認CSVとして提示し、記入されたものを読み戻す。閾値で近似して失敗した経緯が§検証記録にある）
+- **黙って落とさない**（除外・未登録・欠損はすべて件数を画面に出す）
+- **過去月を勝手に遡って再計算しない**（上部に報告済みで確定している）
 
-7月の新作ラッシュ。中でもparley-vstは異彩を放つ。**別トラックに挿された複数インスタンスがプロセス内バスで帯域を交渉し、優先度ベースで自動アンマスキングする**EQ——「プラグイン同士が会話する」という着想を、seqlockとロックフリーFIFOでリアルタイム安全に実装している。単体の音を作る道具から、**ミックスという社会**を扱う道具への視点の移動であり、委員会研究（複数エージェントの合議）と同じ思考の型が音響側に現れたものとして読める。oxideはMac/Winクロスプラットフォーム化しており、開発環境自体が複線化した（このマルチマシン並行開発はリポジトリ分岐という新しい管理課題も生んでいる——vst-testbenchのmasterは現在Win系とMac系で分岐中だ）。
-
----
-
-### カテゴリ5：現場ツールの第二世代
-
-**rx-tracing / PTPCounter / hearing-loss-simulator / CCD / CamView**
-
-PTPCounter（電子天秤×錠数カウント）で示された「現場で使われる道具」の系譜が、7月に**分散システムへ進化した**。rx-tracingは薬剤部の処方・監査・交付をバーコード打刻で突合し、監査漏れを検出するRaspberry Pi 5×3台の閉鎖網システムだ。設計原則が委員会研究と同型なのが興味深い——「eventsテーブルは追記only」「突合はビューで都度計算」「コードが真実・記録は不変」「機械で割り切れない案件は人間へ」。時刻の正しさを電池バックアップRTC＋孤児chronyサーバーで担保する足回りも、打刻システムの本質（タイムスタンプこそが製品）を正しく掴んでいる。hearing-loss-simulatorは老人性難聴からメニエールまでをSTFTで模擬する聴覚教育ツールで、薬剤師×オーディオという二つの専門の交点にしか生まれない公開物だ。
+医療情報システムの要件定義を書いたことがある人間なら、この4行がどれだけ高くつく授業料の産物か分かる。特に2番目——**人の判断を閾値で近似せず、入力口を用意する**——は、AI時代の業務自動化がいちばん間違えるところだ。
 
 ---
 
-### 総括：このアカウントの本質（7月版）
+### カテゴリ3：委員会の科学は「射程」を得た（investment-ai-analyst）
 
-6月に私は「回路の物理を手で解き、AIの力を借りて音楽の意味を問い直している」と書いた。7月の追記はこうだ——**作った道具に対して、反証可能性を要求し始めた。** 委員会にはブラインド出題を、判定官にはベイクオフを、打刻には追記onlyの台帳を、レイテンシーには「本当に必要か」という問いを突きつけた。ドキュメント不足という6月の課題は残る（説明文なしのリポジトリがまだ複数ある）。新しい課題は増殖する開発拠点の同期——Win/Mac/Linux GPU鯖/RPi群という5系統の実機を1人で回す以上、リポジトリの分岐管理が次のボトルネックになる。それでも、最注目は迷わずllm-committee-decontaminationだ。"please falsify"と書ける個人開発者は多くない。
+7月に公開研究（llm-committee-decontamination）として切り出された委員会研究は、実運用側で一段進んだ。判定チェーンに**構造トラップ登録簿**（traps.json で拡張可能）と**射程ゲート**が入っている。射程ゲートの設計が賢い：射程外の問い（未来の事象など）を**棄却せず**、「確定不可」の予防線を付けたうえで推論を展開する。棄却は安全に見えて、実際には判断の放棄に化ける。予防線つきで答える方が、後で検証できる。
+
+7月に指摘した規模の限界（N=20〜30）は残るが、**pair_screening は毎朝運用され続けている**。研究が日課になった、というのが今月の状態だ。
+
+---
+
+### カテゴリ4：VST群と、公開されない主力
+
+**vst-3face-sampler** が8月に更新（SFZベースのサンプラー、Shark/ComfyUI/Performanceモード）。**3face-music-studio** は7月末に大改造（3画面UI、生成と学習をGPU 2枚で並列、pywebviewスタンドアロン化）。回路シミュ群（OD-3/BigMuff/AnalogChorus/ModuMogu/Occiput/TwinParadox）とインスタンス間で帯域を交渉する parley-vst は据え置き。
+
+ここで批評を一つ。**BigMuff は `vst-bigmuff` と `BigMuffVST` の2本、OXIDE は `oxide-vst` と `oxide` の2本がまだ並んでいる。** 中身は同期されているが、外から見た人には「どちらが正か」が分からない。片方をアーカイブして README に転送先を書くだけで済む。同様に、**45本中15本が説明文なし**——6月・7月と2回指摘して、改善していない唯一の項目だ。paganihands も matryoshka-guitar も pm-bench も、中身は今月いちばん面白いのに、リポジトリ一覧からは何も分からない。
+
+---
+
+### 総括：このアカウントの本質（8月版）
+
+6月「回路の物理を手で解き、AIの力を借りて音楽の意味を問い直している」。7月「作った道具に対して、反証可能性を要求し始めた」。8月の追記はこうだ——**自分の労働を、道具に清算させはじめた。**
+
+紙の月報を単一exeに、様式の読み取りを座標とアンカーに、券面の転記をCCDに、物理モデリングの試行錯誤を数値レシートの台帳に。共通しているのは、**「人がやると間違える工程」と「人にしか判断できない工程」を切り分けて、後者には入力口を用意する**という一貫した態度だ。geppouの「再現できない判断は、再現しようとしない」は、そのまま委員会研究の「事実の二値判定はAIに、結論への写像はコードに」と同じ形をしている。音楽と投資と病院という無関係な3領域で同じ構造が現れているのは、偶然ではなく**この開発者の思考の型**である。
+
+課題も同じ形で残る。第一に、**公開像の劣化**——実態の主力がGitHubの外（NAS側）に移り、45本のリポジトリは活動の影絵になりつつある。第二に、**説明文なし15本**。第三に、**二重リポジトリ**。いずれも技術的難易度はゼロで、10分で片付く。今月の最注目は迷わず **pm-bench → paganihands / matryoshka-guitar** の系列。検証装置が製品を産み、その製品がAIに演奏させる前提で設計されている、という循環が、このアカウントで最も未来的な部分だ。
 
 ---
 
@@ -63,20 +76,26 @@ PTPCounter（電子天秤×錠数カウント）で示された「現場で使�
 | カテゴリ | リポジトリ | 概要 |
 |---------|-----------|------|
 | 🔬研究 | llm-committee-decontamination | LLM委員会の丸め病解剖・構造分解・H⊥仮説（公開・反証歓迎） |
-| 投資 | investment-ai-analyst | fx.db×6人格委員会×構造分解judgeによる裁定システム（phase5実運用） |
-| ホスト | vst-testbench | 軽量VST3ホスト＋PRE-RENDERエンジン（スループット→レイテンシー変換） |
-| 医療 | rx-tracing | 薬剤部トレーシング: RPi5×3閉鎖網・バーコード打刻・監査漏れ検出 |
+| 投資 | investment-ai-analyst | 6人格委員会×構造トラップ登録簿×射程ゲート（毎朝運用中） |
+| 🆕物理 | pm-bench | 物理モデリング先行検討ベンチ。数値レシートで書かれた設計文書（#1〜#50で締め） |
+| 🆕楽器 | paganihands | 擦弦＋WIND物理VSTi。演奏補助ノブ（Assist / Auto-play）・全CC対応 |
+| 🆕楽器 | matryoshka-guitar | アコギ物理VSTi。8ボイス＋モーダルボディ＋共鳴弦バンク・プリセット32 |
+| 🆕医療 | geppou | 調剤室月報の自動作成（C++17・標準ライブラリのみ・依存なし単一exe） |
+| 🆕医療 | PdfFormReader | 汎用PDF様式認識→項目抽出→CSV（文字レイヤ優先・OCRは必要な頁だけ） |
+| 🆕医療 | ticket-audit-ocr | 引換券のCCD-OCR（患者番号・発行日・引換番号）。pibox統合前の独立検証 |
+| 医療 | rx-tracing | 薬剤部トレーシング: RPi5×3閉鎖網・3点打刻・監査漏れ検出 |
 | 医療 | PTPCounter | 電子天秤×持参薬錠数カウンター |
-| 公開 | hearing-loss-simulator | STFT聴覚障害シミュレータ（難聴教育・研究用） |
-| 新VST | parley-vst | インスタンス間で帯域を交渉する自動アンマスキングEQ |
-| 新VST | oxide-vst / oxide | DS-1系ディストーション（ADAA・Mac/Win両対応） |
-| 新VST | calque-vst / strata-vst / terrine-vst | 7月の新作群（詳細READMEは今後） |
-| AI音楽 | 3face-comfyui-pipeline | ComfyUI監督/LoRA工場スクリプト群（sn_factory統合・無人製造） |
-| AI音楽 | 3face-music-studio | BBS→Ollama→AceStep 自動作曲パイプライン（SFT経路開通） |
-| AI音楽 | 3face-lora-factory / 3face-suno-studio / 3face-core | LoRA学習管理・Suno・ダッシュボード |
-| 回路VST | vst-od3 / vst-bigmuff / vst-analog-chorus / vst-modumugu / vst-occiput / TwinParadoxVST ほか | 回路シミュレーション群（NR法・Ebers-Moll・BBD） |
-| シンセ | vst-retrophie-sn / vst-drone-weaver / vst-3face-sampler / vst-roland-s550-mt32 | シンセ・サンプラー群 |
-| 構想 | vst-ideas | 未来の構想アーカイブ（評価エンジン・グラニュラーAI等） |
+| 公開 | hearing-loss-simulator | 蝸牛シミュレータ（ガンマトーン・病態層・二言語UI） |
+| ホスト | vst-testbench | 軽量VST3ホスト＋PRE-RENDERエンジン（スループット→レイテンシー変換） |
+| VST | parley-vst | インスタンス間で帯域を交渉する自動アンマスキングEQ |
+| VST | oxide-vst / oxide | DS-1系ディストーション（ADAA・Mac/Win両対応・**要統合**） |
+| VST | calque-vst / strata-vst / terrine-vst | インテリジェンスミックス系ほか |
+| AI音楽 | 3face-music-studio | 3画面UI・生成/学習のGPU並列・pywebviewスタンドアロン |
+| AI音楽 | vst-3face-sampler | SFZサンプラー（Shark / ComfyUI / Performance） |
+| AI音楽 | 3face-comfyui-pipeline / 3face-lora-factory / 3face-suno-studio / 3face-core | LoRA工場・Suno・ダッシュボード |
+| 回路VST | vst-od3 / vst-bigmuff / BigMuffVST / vst-analog-chorus / vst-modumugu / vst-occiput / TwinParadoxVST | 回路シミュレーション群（NR法・Ebers-Moll・BBD・**BigMuffは要統合**） |
+| シンセ | vst-retrophie-sn / vst-drone-weaver / vst-roland-s550-mt32 / flesh808 / gpufx / KaliYugaVST | シンセ・リズム・GPU FX群 |
+| 構想 | vst-ideas | 未来の構想アーカイブ |
 | 検査 | CCD / CamView | タブレット検査用カメラ・OCRビューア |
 
 ---
@@ -86,61 +105,62 @@ PTPCounter（電子天秤×錠数カウント）で示された「現場で使�
 ```mermaid
 graph LR
 
-    %% ── 計算資源（7月に倍増） ──────────
+    %% ── 計算資源 ──────────────────────
     GPU1["🖥️ Win機 RTX 5070 Ti 16GB\n音楽生成・VST開発"]
-    GPU2["🐧 aibox RTX 5060 Ti×2 32GB\n委員会・RepE実験・32B判定官"]
+    GPU2["🐧 aibox RTX 5060 Ti×2 32GB\n委員会・LoRA学習・判定官"]
     PIS["🍓 RPi5×3 (pibox/pi2/pi3)\n閉鎖網・打刻・タッチUI"]
+    WORK["🏥 職場PC\n月報・様式読取・券面OCR"]
 
-    %% ── 委員会クラスタ（最注目） ────────
+    %% ── 委員会の科学 ──────────────────
     subgraph SCI ["🔬 委員会の科学"]
         DECON["llm-committee-decontamination\n公開研究・please falsify"]
-        INV["investment-ai-analyst\nphase5裁定チェーン実運用"]
-        REPE["repe-lab\n活性操舵・構造分解実験"]
+        INV["investment-ai-analyst\n構造トラップ+射程ゲート"]
     end
 
-    %% ── 音楽生成クラスタ ──────────────
+    %% ── 物理モデリング（今月の主役） ───
+    subgraph PM ["🎻 物理モデリング"]
+        BENCH["pm-bench\n数値レシートの台帳(#1-#50)"]
+        PAG["paganihands\n擦弦+WIND・演奏補助ノブ"]
+        MAT["matryoshka-guitar\nアコギ・共鳴弦バンク"]
+    end
+
+    %% ── 音楽AI ────────────────────────
     subgraph MUSIC ["🎵 音楽AI工場"]
-        PIPE["3face-comfyui-pipeline\nsn_factory 無人LoRA製造"]
-        MS["3face-music-studio\nSFT経路開通・量産基準線"]
-        LORA["LoRA 18本/月\n夜間無人ライン"]
-    end
-
-    %% ── VST/ホスト ────────────────────
-    subgraph VST ["🎛️ VST / ホスト"]
-        TB["vst-testbench\nPRE-RENDER=レイテンシーの死\n→ GPU FX異種混成へ"]
-        PARLEY["parley-vst\n帯域交渉EQ(社会的VST)"]
-        NEWGEN["oxide/calque/strata/terrine\n7月新作群(Mac/Win複線)"]
-        CIRC["回路シミュ群\nOD-3/BigMuff/..."]
+        PIPE["3face-comfyui-pipeline\nLoRA製造"]
+        MS["3face-music-studio\n3画面UI・生成/学習並列"]
+        SAMP["vst-3face-sampler\nSFZ・3モード"]
     end
 
     %% ── 現場ツール ────────────────────
-    subgraph FIELD ["🏥 現場ツール"]
-        RX["rx-tracing\n監査漏れ検出・追記only台帳"]
+    subgraph FIELD ["🏥 現場ツール（読む道具へ）"]
+        GEP["geppou\n月報=依存なし単一exe"]
+        PDF["PdfFormReader\n様式認識→CSV"]
+        TIC["ticket-audit-ocr\n券面CCD-OCR"]
+        RX["rx-tracing\n3点打刻・監査漏れ検出"]
         PTP["PTPCounter"]
-        HLS["hearing-loss-simulator\n(公開)"]
     end
 
     %% ── 接続 ─────────────────────────
-    GPU2 --> REPE --> DECON
-    GPU2 --> INV
-    REPE -->|"検証済み構造を還流"| INV
-    GPU1 --> PIPE --> LORA
-    MS --> GPU1
-    TB -->|"Step3: GPUレンダー"| GPU2
+    GPU2 --> INV --> DECON
+    BENCH -->|"合格した実装だけ製品へ"| PAG
+    BENCH --> MAT
+    PAG -.->|"全CC=AIが弾く前提"| INV
+    GPU1 --> PIPE
+    GPU1 --> MS --> SAMP
     PIS --> RX
-    INV -.->|"合議の思考型"| PARLEY
-    RX -.->|"コードが真実の原則"| INV
+    WORK --> GEP
+    WORK --> PDF --> TIC --> RX
+    GEP -.->|"人の判断は入力口を用意"| INV
 
     classDef done fill:#2d5a27,color:#fff,stroke:#4a9640
     classDef inprogress fill:#1a3a6b,color:#fff,stroke:#2563eb
-    classDef future fill:#3d2b00,color:#fff,stroke:#b45309
     classDef infra fill:#2d2d2d,color:#fff,stroke:#666
 
-    class DECON,INV,PIPE,MS,LORA,CIRC,PTP,HLS done
-    class TB,RX,REPE,PARLEY,NEWGEN inprogress
-    class GPU1,GPU2,PIS infra
+    class DECON,INV,BENCH,PAG,MAT,PIPE,MS,PTP,RX done
+    class GEP,PDF,TIC,SAMP inprogress
+    class GPU1,GPU2,PIS,WORK infra
 ```
 
-**凡例:** 🟢 稼働済み　🔵 開発中　🟡 設計済み・未実装
+**凡例:** 🟢 稼働済み　🔵 開発中・実地投入中　⬛ 計算資源
 
-> 過去のレビュー: 2026年6月版はコミット履歴参照。
+> 過去のレビュー: 2026年6月版・7月版はコミット履歴参照。
